@@ -105,7 +105,10 @@ void test_blockchain() {
     for (auto& block : blocks) {
         chain2.push_back(block);
     }
-    
+
+    {
+        assert(chain2.check_blockchain_validation() != chain[0]);
+    }
     {
         chain.concatenate(chain2);
         std::stringstream os;
@@ -154,15 +157,15 @@ void test_blockchain() {
         res = {"data block5", "prev hash " + std::to_string(chain[4].get_hash()), 
             "nounce 1"};
         compare_output(os, res);
-        res = {"data block4", "prev hash " + std::to_string(chain[3].get_hash()), 
+        res = {"data block4", "prev hash " + std::to_string(chain[5].get_hash()), 
             "nounce 1"};
         compare_output(os, res);
-        res = {"data block5", "prev hash " + std::to_string(chain[4].get_hash()), 
+        res = {"data block5", "prev hash " + std::to_string(chain[6].get_hash()), 
             "nounce 1"};
         compare_output(os, res);
     }
     {
-        assert(chain.check_blockchain_validation() != chain[0]);
+        assert(chain.check_blockchain_validation() == chain[0]);
     }
 
     {
@@ -190,6 +193,24 @@ void test_blockchain() {
     }
     {
         assert(chain.check_blockchain_validation() == chain[0]);
+    }
+
+    {
+        BlockChain chain3(bl1, bl2, bl3);
+        std::stringstream os;
+        os << chain3;
+        res = {"data ", "prev hash 0", "nounce 0"};
+        compare_output(os, res);
+        res = {"data block1", "prev hash " + std::to_string(chain3[0].get_hash()), 
+            "nounce 0"};
+        compare_output(os, res);
+        res = {"data block2", "prev hash " + std::to_string(chain3[1].get_hash()), 
+            "nounce 1"};
+        compare_output(os, res);
+        res = {"data block3", "prev hash " + std::to_string(chain3[2].get_hash()), 
+            "nounce 1"};
+        compare_output(os, res);
+        assert(chain3.check_blockchain_validation() == chain3[0]);
     }
 
     std::cout << "TEST BLOCKCHAIN OK" << std::endl;
