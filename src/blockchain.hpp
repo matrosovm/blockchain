@@ -10,8 +10,21 @@ namespace blockchain {
     public:
         BlockChain() {
             chain_.push_back(Block{});
-        };
-        
+        }
+
+        BlockChain(const Block& block) {
+            chain_.push_back(Block{});
+            chain_.push_back(block);
+        }
+
+        template <class T1, class... T>
+        BlockChain(const T1& first, const T&... block) {
+            chain_.push_back(Block{});
+            chain_.push_back(Block(first.get_data(), chain_[0].get_hash(), 
+                first.get_nounce(), first.get_timestamp()));
+            concatenate(BlockChain(block...));
+        }
+
         BlockChain(const BlockChain&) = default;
         BlockChain(BlockChain&&) = default;
 
@@ -82,8 +95,12 @@ namespace blockchain {
         }
 
         BlockChain& concatenate(const BlockChain& blockchain) {
+            uint64_t prev_hash = back().get_hash();
             for (size_t i = 1; i < blockchain.size(); ++i) {
-                push_back(blockchain.get_block(i));
+                const Block& tmp = blockchain.get_block(i);
+                push_back(Block(tmp.get_data(), prev_hash, tmp.get_nounce(), 
+                    tmp.get_timestamp()));
+                prev_hash = back().get_hash();
             }
             return *this;
         }
